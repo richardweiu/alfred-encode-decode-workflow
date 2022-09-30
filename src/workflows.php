@@ -38,8 +38,10 @@ class Workflows {
 			$this->bundle = $bundleid;
 		endif;
 
-		$this->cache = $this->home. "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/".$this->bundle;
-		$this->data  = $this->home. "/Library/Application Support/Alfred 2/Workflow Data/".$this->bundle;
+		// $this->cache = $this->home. "/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/".$this->bundle;
+		// $this->data  = $this->home. "/Library/Application Support/Alfred 2/Workflow Data/".$this->bundle;
+		$this->cache = getenv('alfred_workflow_cache');
+		$this->data  = getenv('alfred_workflow_data');
 
 		if ( !file_exists( $this->cache ) ):
 			exec("mkdir '".$this->cache."'");
@@ -194,7 +196,9 @@ class Workflows {
 						$c->addAttribute( 'valid', $b[$key] );
 					endif;
 				elseif ( $key == 'autocomplete' ):
-					$c->addAttribute( 'autocomplete', $b[$key] );
+					if (isset($b['autocomplete'])):
+						$c->addAttribute( 'autocomplete', $b[$key] );
+					endif;
 				elseif ( $key == 'icon' ):
 					if ( substr( $b[$key], 0, 9 ) == 'fileicon:' ):
 						$val = substr( $b[$key], 9 );
@@ -307,6 +311,10 @@ class Workflows {
 		exec( 'defaults read "'. $b .'" '.$a, $out );	// Execute system call to read plist value
 
 		if ( $out == "" ):
+			return false;
+		endif;
+
+		if ( empty($out) ):
 			return false;
 		endif;
 
@@ -480,7 +488,6 @@ class Workflows {
 		endif;
 
 		array_push( $this->results, $temp );
-
 		return $temp;
 	}
 
